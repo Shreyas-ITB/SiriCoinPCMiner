@@ -69,20 +69,18 @@ class SiriCoinMiner(object):
         self.refresh()
 #        print(tx)
         txid = self.requests.get(f"{self.node}/send/rawtransaction/?tx={json.dumps(tx).encode().hex()}").json().get("result")[0]
-        print(f"SYS {Fore.GREEN}Mined block {blockData['miningData']['proof']}, submitted in transaction {txid}")
+        print(f"SYS {Fore.GREEN}Mined block {blockData['miningData']['proof']}")
+        print(f"Submitted in transaction {txid}")
         return txid
-
-
-
 
     def beaconRoot(self):
         messagesHash = w3.keccak(self.messages)
         bRoot = w3.soliditySha3(["bytes32", "uint256", "bytes32","address"], [self.lastBlock, int(self.timestamp), messagesHash, self.rewardsRecipient]) # parent PoW hash (bytes32), beacon's timestamp (uint256), hash of messages (bytes32), beacon miner (address)
-        return bRoot.hex()
+        return bRoot
 
     def proofOfWork(self, bRoot, nonce):
 #        print(f"Beacon root : {bRoot}")
-        proof = w3.solidityKeccak(["bytes32", "uint256"], [bRoot, int(nonce)])
+        proof = w3.keccak(b"".join([bRoot,nonce.to_bytes(32, 'big')]))
         return proof.hex()
 
     def formatHashrate(self, hashrate):
@@ -100,14 +98,22 @@ class SiriCoinMiner(object):
         self.refresh()
         print(f"SYS {Fore.GREEN}Started mining for {self.rewardsRecipient}")
         proof = "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+        self_lastBlock = ""
         while True:
             self.refresh()
+            if (self_lastBlock != self.lastBlock):
+                self_lastBlock = self.lastBlock
+                print(f"{Fore.YELLOW}lastBlock  : {self_lastBlock}")
+                print(f"{Fore.YELLOW}target     : {self.target}")
+                print(f"{Fore.YELLOW}difficulty : {self.difficulty}")
             bRoot = self.beaconRoot()
-            while (time.time() - self.timestamp) < 30:
+            tinicial = time.time()            
+            while (time.time() - tinicial) < 20:
                 self.nonce += 1
                 proof = self.proofOfWork(bRoot, self.nonce)
                 if (int(proof, 16) < int(self.target, 16)):
                     self.submitBlock({"miningData" : {"miner": self.rewardsRecipient,"nonce": self.nonce,"difficulty": self.difficulty,"miningTarget": self.target,"proof": proof}, "parent": self.lastBlock,"messages": self.messages.hex(), "timestamp": self.timestamp, "son": "0000000000000000000000000000000000000000000000000000000000000000"})
+                    break
             print(f"SYS {Fore.YELLOW}Last 30 seconds hashrate : {self.formatHashrate((self.nonce / 30))}")
 
 
@@ -118,5 +124,6 @@ class SiriCoinMiner(object):
         # self.miningTarget
 if __name__ == "__main__":
     minerAddr = input("Enter your SiriCoin address : ")
-    miner = SiriCoinMiner("https://siricoin-node-1.dynamic-dns.net:5005/", minerAddr)
+    #miner = SiriCoinMiner("https://siricoin-node-1.dynamic-dns.net:5005/", minerAddr)
+    miner = SiriCoinMiner("http://138.197.181.206:5005/", minerAddr)
     miner.startMining()
