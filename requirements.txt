@@ -41,3 +41,4 @@ yarl==1.7.2
 pysha3
 pypresence
 configparser
+rich
