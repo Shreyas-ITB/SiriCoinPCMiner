@@ -11,6 +11,7 @@ And You Are Now Promted To Put Your SiriCoin Address Copy and Paste It Then Hit 
 
 ## ON ARM Devices like Androids follow this
 Note that you need to have termux installed from their official github repository.. after that copy and paste the below commands
+
 `apt-get update && apt-get upgrade`
 
 `apt-get install git wget`
