@@ -15,7 +15,7 @@ Note that you need to have termux installed from their official github repositor
 
 `apt-get install git wget`
 
-`apt-get install python3`
+`apt-get install python3 python3-pip`
 
 `git clone https://github.com/Shreyas-ITB/SiriCoinPCMiner`
 
