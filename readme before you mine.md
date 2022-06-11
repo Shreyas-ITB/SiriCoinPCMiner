@@ -23,6 +23,6 @@ Note that you need to have termux installed from their official github repositor
 
 `python3 -m pip install -r requirements.txt`
 
-`python3 SiriCoinPCMiner.py`
+`python3 SiriCoinPCMiner-OPT.py`
   
 OFFICIAL PC MINER BY SIRIDEVS FROM SIRICOIN.. 
