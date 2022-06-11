@@ -231,7 +231,7 @@ if __name__ == "__main__":
             print("[green]Successfully Established Discord RPC..[/green]")
             miner = SiriCoinMiner(usraddr)
             miner.startMining()
-        except pypresence.exceptions.DiscordNotFound or pypresence.exceptions.DiscordError:
+        except:
                 print("[red]Couldnt Start Discord RPC Proceeding...[/red]")
                 #Read config
                 open("Config\config.ini", "r")
