@@ -1,17 +1,8 @@
-#Based on original SiriCoinPCMiner
-import time, importlib, json, sha3
+import os, configparser, json, sha3, eth_account.messages, time, importlib, pypresence, colorama
 from web3.auto import w3
-from eth_account.account import Account
-from eth_account.messages import encode_defunct
-from colorama import Fore
 from rich import print
-import pypresence
-from pypresence import Presence
-import os, configparser
-from time import sleep
 
-#NodeAddr = "https://siricoin-node-1.dynamic-dns.net:5005/"
-NodeAddr = "http://138.197.181.206:5005/"
+NodeAddr = "https://node-1.siricoin.tech:5006/"
 
 SYSm = ("[cyan][SYSM][/cyan]")
 NODEm = ("[cyan][NODEM][/cyan]")
@@ -47,7 +38,7 @@ class SignatureManager(object):
         self.signed = 0
 
     def signTransaction(self, private_key, transaction):
-        message = encode_defunct(text=transaction["data"])
+        message = eth_account.messages.encode_defunct(text=transaction["data"])
         transaction["hash"] = w3.soliditySha3(["string"], [transaction["data"]]).hex()
         _signature = w3.eth.account.sign_message(message, private_key=private_key).signature.hex()
         signer = w3.eth.account.recover_message(message, signature=_signature)
@@ -58,7 +49,7 @@ class SignatureManager(object):
         return transaction
 
     def verifyTransaction(self, transaction):
-        message = encode_defunct(text=transaction["data"])
+        message = eth_account.messages.encode_defunct(text=transaction["data"])
         _hash = w3.soliditySha3(["string"], [transaction["data"]]).hex()
         _hashInTransaction = transaction["hash"]
         signer = w3.eth.account.recover_message(message, signature=transaction["sig"])
@@ -136,7 +127,7 @@ class SiriCoinMiner(object):
         tmp_get = self.requests.get(f"{self.send_url}{json.dumps(tx).encode().hex()}")
         if (tmp_get.status_code != 500 ):
             txid = tmp_get.json().get("result")[0]
-        print(f"{Fore.GREEN}TimeStamp: {self.timestamp}, Nonce: {self.nonce}")
+        print(f"{colorama.Fore.GREEN}TimeStamp: {self.timestamp}, Nonce: {self.nonce}")
         print(f"Mined block {blockData['miningData']['proof']}")
         print(f"Submitted in transaction {txid}")
         return txid
@@ -208,7 +199,7 @@ if __name__ == "__main__":
     print("[yellow]Trying to start Discord RPC...[/yellow]")
     if (os.path.exists("Config\config.ini")):
         try:
-            rpc = Presence("983430664357560400")
+            rpc = pypresence.Presence("983430664357560400")
             rpc.connect()
             #Read config
             open("Config\config.ini", "r")
@@ -221,7 +212,7 @@ if __name__ == "__main__":
             print(f"""[blue]
                         ______________________________
                         ||__________________________||
-                        ||    Siricoin PC Miner    || 
+                        ||    Siricoin PC Miner     || 
                         ||     By SiriCoin Team     ||
                         ||__________________________||
                         |____________________________|
@@ -244,7 +235,7 @@ if __name__ == "__main__":
                 print(f"""[blue]
                 ______________________________
                 ||__________________________||
-                ||    Siricoin AVR Miner    || 
+                ||    Siricoin PC Miner     || 
                 ||     By SiriCoin Team     ||
                 ||__________________________||
                 |____________________________|
@@ -263,6 +254,6 @@ if __name__ == "__main__":
                 config_local.userinfo["walletaddr"] = wallinpt
             config_local.write()
             print("[green]Config Saved Successfully..[/green]")
-            sleep(2)
             print("[red]Please Restart/Rerun the miner to continue..[/red]")
+            time.sleep(5)
             exit()
