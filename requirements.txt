@@ -42,3 +42,4 @@ pysha3
 pypresence
 configparser
 rich
+multiprocessing
