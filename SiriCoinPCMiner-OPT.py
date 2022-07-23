@@ -12,7 +12,7 @@ from time import sleep
 from multiprocessing import Process, Queue
 
 #NodeAddr = "https://siricoin-node-1.dynamic-dns.net:5005/"
-NodeAddr = "http://138.197.181.206:5005/"
+NodeAddr = "http://195.3.223.9:5005/"
 
 #notify all these nodes as soon as we found a valid block
 nodes_notify = ["http://138.197.181.206:5005/", "https://node-1.siricoin.tech:5006"]
