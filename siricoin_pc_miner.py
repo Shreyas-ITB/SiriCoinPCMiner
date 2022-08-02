@@ -11,14 +11,14 @@ import os, configparser
 from time import sleep
 from multiprocessing import Process, Queue
 
-#NodeAddr = "https://siricoin-node-1.dynamic-dns.net:5005/"
-NodeAddr = "http://195.3.223.9:5005/"
+#NODE_ADDR = "https://siricoin-node-1.dynamic-dns.net:5005/"
+NODE_ADDR = "http://195.3.223.9:5005/"
 
 #notify all these nodes as soon as we found a valid block
 #nodes_notify = ["http://138.197.181.206:5005/", "https://node-1.siricoin.tech:5006"]
 
-SYSm = ("[cyan][SYSM][/cyan]")
-NODEm = ("[cyan][NODEM][/cyan]")
+SYSM = ("[cyan][SYSM][/cyan]")
+NODEM = ("[cyan][NODEM][/cyan]")
 
 # process worker
 # id of process, number of processes, input, output, report Queues
@@ -127,10 +127,10 @@ class SiriCoinMiner(object):
         self.lastSentTx = ""
         self.balance = 0
 
-        self.send_url = NodeAddr + "send/rawtransaction/?tx="
-        self.block_url = NodeAddr + "chain/miningInfo"
-        self.accountInfo_url = NodeAddr + "accounts/accountInfo/" + self.acct.address
-        self.balance_url = NodeAddr + "accounts/accountBalance/" + RewardsRecipient
+        self.send_url = NODE_ADDR + "send/rawtransaction/?tx="
+        self.block_url = NODE_ADDR + "chain/miningInfo"
+        self.accountInfo_url = NODE_ADDR + "accounts/accountInfo/" + self.acct.address
+        self.balance_url = NODE_ADDR + "accounts/accountBalance/" + RewardsRecipient
         self.refreshBlock()
         self.refreshAccountInfo()
 
@@ -199,7 +199,7 @@ class SiriCoinMiner(object):
   
     def multiMine(self, NUM_THREADS):
         strt = (f"[blue]Started mining for {self.rewardsRecipient}[/blue]")
-        print(NODEm, strt)
+        print(NODEM, strt)
         proof = "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
         self_lastBlock = ""
         int_target = 0
@@ -220,11 +220,11 @@ class SiriCoinMiner(object):
             difftxt = (f"[magenta]CurrentDiff : {diff}[/magenta]")
             timestamp = (f"[magenta]NodeTimeStamp : {serverts}[/magenta]")
             workerstxt = (f"[magenta]WorkerProcesses : {NUM_THREADS}[/magenta]")
-            print(NODEm, lstxt)
-            print(NODEm, trgtxt)
-            print(NODEm, difftxt)
-            print(NODEm, timestamp)
-            print(NODEm, workerstxt)
+            print(NODEM, lstxt)
+            print(NODEM, trgtxt)
+            print(NODEM, difftxt)
+            print(NODEM, timestamp)
+            print(NODEM, workerstxt)
             self.printBalance()
             print("")
         int_target = int(self.target, 16)
@@ -270,11 +270,11 @@ class SiriCoinMiner(object):
                     difftxt = (f"[magenta]CurrentDiff : {diff}[/magenta]")
                     timestamp = (f"[magenta]NodeTimeStamp : {serverts}[/magenta]")
                     workerstxt = (f"[magenta]WorkerProcesses : {NUM_THREADS}[/magenta]")
-                    print(NODEm, lstxt)
-                    print(NODEm, trgtxt)
-                    print(NODEm, difftxt)
-                    print(NODEm, timestamp)
-                    print(NODEm, workerstxt)
+                    print(NODEM, lstxt)
+                    print(NODEM, trgtxt)
+                    print(NODEM, difftxt)
+                    print(NODEM, timestamp)
+                    print(NODEM, workerstxt)
                     self.printBalance()
                     print("")
                 int_target = int(self.target, 16)
@@ -288,7 +288,7 @@ class SiriCoinMiner(object):
                     while not r.empty():
                         total += r.get()
                 hstr = (f"[green]Hashrate : {self.formatHashrate(((total) / (time.time() - start)))} Last {round(time.time() - start,2)} seconds[/green]")
-                print(SYSm, hstr)
+                print(SYSM, hstr)
                 start = time.time()    
                 
             # check if any process found a result, and submit the block
