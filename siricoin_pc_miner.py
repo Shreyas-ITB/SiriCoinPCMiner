@@ -139,7 +139,7 @@ class SiriCoinMiner(object):
         try:
             info = self.requests.get(self.balance_url).json().get("result")
             balance = info["balance"]
-        except:
+        except requests.exceptions.RequestException:
             print("Error balance")
         print(f"Balance: {balance}")
                 
@@ -149,7 +149,7 @@ class SiriCoinMiner(object):
             self.target = info["target"]
             self.difficulty = info["difficulty"]
             self.lastBlock = info["lastBlockHash"]
-        except:
+        except requests.exceptions.RequestException:
             print("refreshBlock: error")
         self.timestamp = int(time.time())
 
@@ -159,7 +159,7 @@ class SiriCoinMiner(object):
             _txs = temp_txs.get("transactions")
             self.lastSentTx = _txs[len(_txs)-1]
             self.balance = temp_txs.get("balance")
-        except:
+        except Exception:
             print("refreshAccountInfo: error")
 
     def submitBlock(self, blockData):
@@ -172,7 +172,7 @@ class SiriCoinMiner(object):
             f = open(blockData.get("miningData")["proof"], "w")
             f.write(f"{self.send_url}{json.dumps(tx).encode().hex()}")
             f.close();
-        except:
+        except Exception:
             print("file write error")
         tmp_get = self.requests.get(f"{self.send_url}{json.dumps(tx).encode().hex()}")
         
