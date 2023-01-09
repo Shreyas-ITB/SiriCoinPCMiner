@@ -184,12 +184,7 @@ class MadzCoinMiner(object):
         data = json.dumps({"from": self.acct.address, "to": self.acct.address, "tokens": 0, "parent": self.lastSentTx, "blockData": blockData, "epoch": self.lastBlock, "type": 1})
         tx = {"data": data}
         tx = self.signer.signTransaction(self.priv_key, tx)
-        try:
-            f = open(blockData.get("miningData")["proof"], "w")
-            f.write(f"{self.send_url}{json.dumps(tx).encode().hex()}")
-            f.close();
-        except:
-            print("file write error")
+
         tmp_get = self.requests.get(f"{self.send_url}{json.dumps(tx).encode().hex()}")
         
         for node in nodes_notify:
