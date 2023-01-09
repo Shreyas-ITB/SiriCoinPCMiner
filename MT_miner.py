@@ -1,7 +1,6 @@
-#Based on original SiriCoinPCMiner
-import time, importlib, json, sha3, platform, cpuinfo, multiprocessing, psutil
+#Based on original SiriCoinPCMiner.... Gonna have to rework it, it's full of BS.
+import time, importlib, json, platform, cpuinfo, multiprocessing, psutil
 from web3.auto import w3
-from eth_account.account import Account
 from eth_account.messages import encode_defunct
 from colorama import Fore
 from rich import print
@@ -11,38 +10,55 @@ import os, configparser
 from time import sleep
 from multiprocessing import Process, Queue
 
-#NodeAddr = "https://siricoin-node-1.dynamic-dns.net:5005/"
-NodeAddr = "http://195.3.223.9:5005/"
+import groestlcoin_hash, skein
 
-#notify all these nodes as soon as we found a valid block
-#nodes_notify = ["http://138.197.181.206:5005/", "https://node-1.siricoin.tech:5006"]
+
+NodeAddr = "https://madzcoin-node.superpythonguy.repl.co/"
+nodes_notify = [NodeAddr]
+miner_debug = True
 
 SYSm = ("[cyan][SYSM][/cyan]")
 NODEm = ("[cyan][NODEM][/cyan]")
 
+
+def Get_address():
+    address_valid = False
+
+
+    while not address_valid:
+            minerAddr = input("Enter your MadzCoin address: ")
+            try:
+                address_valid = w3.isAddress(minerAddr)
+            except:
+                print("[red]The address you inputed is invalid, please try again[/red]")
+            if not address_valid:
+                print("[red]The address you inputed is invalid, please try again[/red]")
+            else:
+                return minerAddr
+
 # process worker
 # id of process, number of processes, input, output, report Queues
 def worker(id, num, i, o, r):
-    ctx_proof = sha3.keccak_256()
+    bRoot_hasher = skein.skein256()
     nonce = id
     target = 0
-    tmp0 =0
-    start = time.time()
+    start = time.perf_counter()
     work_done = 0
     while True:
         
         if i.empty():
             # report every 5 s 
-            if(time.time() > (start + 5)):
-                start = time.time()
+            if(time.perf_counter() > (start + 5)):
+                start = time.perf_counter()
                 r.put(work_done)
                 work_done = 0
             # report or update after N cycles to limit io requests
             for x in range(100000):
-                ctx_proof2 = ctx_proof.copy()
-                ctx_proof2.update(nonce.to_bytes(8, "big"))
-                bProof = ctx_proof2.digest()
+                final_hash = bRoot_hasher.copy()
+                final_hash.update(nonce.to_bytes(32, "big"))
+                bProof = groestlcoin_hash.getHash(b"".join([final_hash.digest(), nonce.to_bytes(32, "big")]), 64)
                 # found solution
+
                 if (int.from_bytes(bProof, "big") < target):
                     text_proof = "0x" + bProof.hex()
                     o.put([text_proof , nonce])
@@ -50,9 +66,8 @@ def worker(id, num, i, o, r):
             work_done+=100000
         else:
             [base, tar] = i.get()
-            ctx_proof = sha3.keccak_256()
-            ctx_proof.update(base)
-            ctx_proof.update(tmp0.to_bytes(24, "big"))
+            bRoot_hasher = skein.skein256()
+            bRoot_hasher.update(base)
             target = tar
             nonce = id
 
@@ -108,16 +123,16 @@ class SignatureManager(object):
         self.verified += int(result)
         return result
 
-class SiriCoinMiner(object):
+class MadzCoinMiner(object):
     def __init__(self, RewardsRecipient):
         self.requests = importlib.import_module("requests")
         self.signer = SignatureManager()
 
         self.difficulty = 1
-        self.target = "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+        self.target = "0x" + "f"*64
         self.lastBlock = ""
         self.rewardsRecipient = w3.toChecksumAddress(RewardsRecipient)
-        self.priv_key = w3.solidityKeccak(["string", "address"], ["SiriCoin Will go to MOON - Just a disposable key", self.rewardsRecipient])
+        self.priv_key = w3.solidityKeccak(["string", "address"], ["MadzCoin for the win!!! - Just a disposable key", self.rewardsRecipient])
 
         self.timestamp = 0
         self.nonce = 0
@@ -140,7 +155,8 @@ class SiriCoinMiner(object):
             info = self.requests.get(self.balance_url).json().get("result")
             balance = info["balance"]
         except:
-            print("Error balance")
+            print("[red]Failed fetching balance[/red]")
+            return 
         print(f"Balance: {balance}")
                 
     def refreshBlock(self):
@@ -188,45 +204,46 @@ class SiriCoinMiner(object):
 
     def formatHashrate(self, hashrate):
         if hashrate < 1000:
-            return f"{round(hashrate, 2)}H/s"
+            return f"{round(hashrate, 2)} H/s"
         elif hashrate < 1000000:
-            return f"{round(hashrate/1000, 2)}kH/s"
+            return f"{round(hashrate/1000, 2)} kH/s"
         elif hashrate < 1000000000:
-            return f"{round(hashrate/1000000, 2)}MH/s"
+            return f"{round(hashrate/1000000, 2)} MH/s"
         elif hashrate < 1000000000000:
-            return f"{round(hashrate/1000000000, 2)}GH/s"
+            return f"{round(hashrate/1000000000, 2)} GH/s"
 
   
     def multiMine(self, NUM_THREADS):
         strt = (f"[blue]Started mining for {self.rewardsRecipient}[/blue]")
         print(NODEm, strt)
-        proof = "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+        proof = "0x" + "f"*64
         self_lastBlock = ""
         int_target = 0
     
         self.refreshBlock()
         if (self_lastBlock != self.lastBlock):
             self_lastBlock = self.lastBlock
-            print("")
-            print(f"[green]Node Report[/green]")
-            print("")
-            lstblck = (f"[yellow]{self.lastBlock}[/yellow]")
-            trgt = (f"[yellow]{self.target}[/yellow]")
-            nonfrmtdiff = diffformat(self.difficulty)
-            diff = (f"[blue]{nonfrmtdiff}[/blue]")
-            serverts = (f"[yellow]{self.timestamp}[/yellow]")
-            lstxt = (f"[magenta]LastBlock : {lstblck}[/magenta]")
-            trgtxt = (f"[magenta]TargetBlock : {trgt}[/magenta]")
-            difftxt = (f"[magenta]CurrentDiff : {diff}[/magenta]")
-            timestamp = (f"[magenta]NodeTimeStamp : {serverts}[/magenta]")
-            workerstxt = (f"[magenta]WorkerProcesses : {NUM_THREADS}[/magenta]")
-            print(NODEm, lstxt)
-            print(NODEm, trgtxt)
-            print(NODEm, difftxt)
-            print(NODEm, timestamp)
-            print(NODEm, workerstxt)
-            self.printBalance()
-            print("")
+            if miner_debug:
+                print("")
+                print(f"[green]Node Report[/green]")
+                print("")
+                lstblck = (f"[yellow]{self.lastBlock}[/yellow]")
+                trgt = (f"[yellow]{self.target}[/yellow]")
+                nonfrmtdiff = diffformat(self.difficulty)
+                diff = (f"[blue]{nonfrmtdiff}[/blue]")
+                serverts = (f"[yellow]{self.timestamp}[/yellow]")
+                lstxt = (f"[magenta]LastBlock : {lstblck}[/magenta]")
+                trgtxt = (f"[magenta]TargetBlock : {trgt}[/magenta]")
+                difftxt = (f"[magenta]CurrentDiff : {diff}[/magenta]")
+                timestamp = (f"[magenta]NodeTimeStamp : {serverts}[/magenta]")
+                workerstxt = (f"[magenta]WorkerProcesses : {NUM_THREADS}[/magenta]")
+                print(NODEm, lstxt)
+                print(NODEm, trgtxt)
+                print(NODEm, difftxt)
+                print(NODEm, timestamp)
+                print(NODEm, workerstxt)
+                self.printBalance()
+                print("")
         int_target = int(self.target, 16)
         messagesHash = w3.keccak(self.messages)
         bRoot = w3.soliditySha3(["bytes32", "uint256", "bytes32","address"], [self.lastBlock, self.timestamp, messagesHash, self.rewardsRecipient])
@@ -252,14 +269,13 @@ class SiriCoinMiner(object):
         
         # main thread does reporting (20s) and block submission
         start = time.time()    
+        hashing_start = time.perf_counter()
         while True:
             if(time.time()> start+20):
                 self.refreshBlock()
                 if (self_lastBlock != self.lastBlock):
                     self_lastBlock = self.lastBlock
-                    print("")
-                    print(f"[green]Node Report[/green]")
-                    print("")
+
                     lstblck = (f"[yellow]{self.lastBlock}[/yellow]")
                     trgt = (f"[yellow]{self.target}[/yellow]")
                     nonfrmtdiff = diffformat(self.difficulty)
@@ -270,11 +286,15 @@ class SiriCoinMiner(object):
                     difftxt = (f"[magenta]CurrentDiff : {diff}[/magenta]")
                     timestamp = (f"[magenta]NodeTimeStamp : {serverts}[/magenta]")
                     workerstxt = (f"[magenta]WorkerProcesses : {NUM_THREADS}[/magenta]")
-                    print(NODEm, lstxt)
-                    print(NODEm, trgtxt)
-                    print(NODEm, difftxt)
-                    print(NODEm, timestamp)
-                    print(NODEm, workerstxt)
+                    if miner_debug:
+                        print("")
+                        print(f"[green]Report[/green]")
+                        print("")
+                        print(NODEm, lstxt)
+                        print(NODEm, trgtxt)
+                        print(NODEm, difftxt)
+                        print(NODEm, timestamp)
+                        print(NODEm, workerstxt)
                     self.printBalance()
                     print("")
                 int_target = int(self.target, 16)
@@ -287,9 +307,10 @@ class SiriCoinMiner(object):
                 for r in reports:
                     while not r.empty():
                         total += r.get()
-                hstr = (f"[green]Hashrate : {self.formatHashrate(((total) / (time.time() - start)))} Last {round(time.time() - start,2)} seconds[/green]")
-                print(SYSm, hstr)
-                start = time.time()    
+                print(SYSm, "[green]Last " + str(round(time.perf_counter() - hashing_start, 2)) + "s hashrate: " + self.formatHashrate((total / (time.perf_counter() - hashing_start))) + "[/green]")
+                rpc.update(state="Mining MADZ on " + cpuinfo.get_cpu_info()['brand_raw'] + "!", details="Hashrate: " + self.formatHashrate((total / (time.perf_counter() - hashing_start))) + ", Network balance: " + str(self.requests.get(self.balance_url).json()["result"]["balance"]) + " MADZ", large_image="madzcoin")
+                start = time.time()  
+                hashing_start = time.perf_counter() 
                 
             # check if any process found a result, and submit the block
             for o in outputs:
@@ -297,20 +318,16 @@ class SiriCoinMiner(object):
                     [pr, non] = o.get()
                     self.nonce = non
                     proof = pr
-                    self.submitBlock({"miningData" : {"miner": self.rewardsRecipient,"nonce": self.nonce,"difficulty": self.difficulty,"miningTarget": self.target,"proof": proof}, "parent": self.lastBlock,"messages": self.messages.hex(), "timestamp": self.timestamp, "son": "0000000000000000000000000000000000000000000000000000000000000000"})
-                    print({"miningData" : {"miner": self.rewardsRecipient,"nonce": self.nonce,"difficulty": self.difficulty,"miningTarget": self.target,"proof": proof}, "parent": self.lastBlock,"messages": self.messages.hex(), "timestamp": self.timestamp, "son": "0000000000000000000000000000000000000000000000000000000000000000"})
+                    self.submitBlock({"miningData" : {"miner": self.rewardsRecipient,"nonce": self.nonce,"difficulty": self.difficulty,"miningTarget": self.target,"proof": proof}, "parent": self.lastBlock,"messages": self.messages.hex(), "timestamp": self.timestamp, "son": "0"*64})
+                    if miner_debug: print({"miningData" : {"miner": self.rewardsRecipient,"nonce": self.nonce,"difficulty": self.difficulty,"miningTarget": self.target,"proof": proof}, "parent": self.lastBlock,"messages": self.messages.hex(), "timestamp": self.timestamp, "son": "0"*64})
 
 
 
 if __name__ == "__main__":
-    print("[yellow]Trying to start Discord RPC...[/yellow]")
     if (os.path.exists("Config\config.ini")):
-        try:
-            rpc = Presence("983430664357560400")
-            rpc.connect()
             #Read config
             open("Config\config.ini", "r")
-            print("[green]Got Config Data from the ConfigFiles.. Proceeding Further..[/green]")
+            print("[green]Parsed the config files... Proceeding Further...[/green]")
             config_local = ConfigFile()
             config_local.read()
             usraddr = config_local.userinfo["walletaddr"]
@@ -321,9 +338,7 @@ if __name__ == "__main__":
             print(f"""[blue]
                             ______________________________
                             ||__________________________||
-                            ||    Siricoin PC Miner    || 
-                            ||     By SiriCoin Team     ||
-                            ||__________________________||
+                            ||    MadzCoin PC Miner     || 
                             |____________________________|
                                 {greeting}[/blue]""")
             print("")
@@ -331,66 +346,38 @@ if __name__ == "__main__":
             print(f"[violet]OS: {platform.system(), platform.release()}[/violet]")
             cpumain = (cpuinfo.get_cpu_info()["brand_raw"])
             print(f"[violet]CPU: {cpumain}[/violet]")
-            print(f"[violet]CPUFamily: {platform.processor()}[/violet]")
-            print(f"[violet]CPUThreads: {multiprocessing.cpu_count()}[/violet]")
+            print(f"[violet]CPU Family: {platform.processor()}[/violet]")
+            print(f"[violet]CPU Threads: {multiprocessing.cpu_count()}[/violet]")
             print(f"[violet]RAM: {round(psutil.virtual_memory().total / 1000000000, 2)}GB[/violet]")
-            print(f"[violet]GPU: {platform.machine()}[/violet]")
             print(f"[blue]-----------------------------------------------------------------[/blue]") # code by luketherock868
             print("")
-            rpc.update(state="Becoming Richer every day!", details="Mining SiriCoin with my CPU(s)", large_image="smallimage", small_image="logo", start=time.time())
-            print("[green]Successfully Established Discord RPC..[/green]")
-            miner = SiriCoinMiner(usraddr)
+
+            try:
+                rpc = Presence("1061719628839137350")
+                rpc.connect()
+                rpc.update(state="Mining MADZ on " + cpuinfo.get_cpu_info()['brand_raw'] + "!", details="Hashrate: " + "Unknown" + ", Network balance: " + str(importlib.import_module("requests").get(f"{NodeAddr}accounts/accountBalance/{usraddr}").json()["result"]["balance"]) + " MADZ", large_image="madzcoin", start=time.time())
+                print("[green]Successfully established Discord RPC..[/green]")
+            except pypresence:
+                print("[red]Failed to stablish Discord RPC..[/red]")
+            
+            miner = MadzCoinMiner(usraddr)
             miner.multiMine(thrint)
-        except pypresence.exceptions.DiscordNotFound or pypresence.exceptions.DiscordError:
-                print("[red]Couldnt Start Discord RPC Proceeding...[/red]")
-                #Read config
-                open("Config\config.ini", "r")
-                print("[green]Got Config Data from the ConfigFiles.. Proceeding Further..[/green]")
-                config_local = ConfigFile();
-                config_local.read()
-                usraddr = config_local.userinfo["walletaddr"]
-                thread = config_local.userinfo["threads"]
-                thrint = (int(thread))
-                minead = (f"[blue]{usraddr}[/blue]")
-                greeting = ("[green]Happy Mining![/green]")
-                print(f"""[blue]
-                ______________________________
-                ||__________________________||
-                ||    Siricoin PC Miner    || 
-                ||     By SiriCoin Team     ||
-                ||__________________________||
-                |____________________________|
-                        {greeting}[/blue]""")
-                print("")
-                print("[blue]---------------------------- System ----------------------------[/blue]")
-                print(f"[blue]OS: {platform.system(), platform.release()}[/blue]")
-                cpumain = (cpuinfo.get_cpu_info()["brand_raw"])
-                print(f"[blue]CPU: {cpumain}[/blue]")
-                print(f"[blue]CPUFamily: {platform.processor()}[/blue]")
-                print(f"[blue]CPUThreads: {multiprocessing.cpu_count()}[/blue]")
-                print(f"[blue]RAM: {round(psutil.virtual_memory().total / 1000000000, 2)}GB[/blue]")
-                print(f"[blue]GPU: {platform.machine()}[/blue]")
-                print(f"[blue]-----------------------------------------------------------------[/blue]") 
-                print("")
-                miner = SiriCoinMiner(usraddr)
-                miner.multiMine(thrint)
     if (not os.path.exists("Config\config.ini")):
-            print("[red]No Config file found. Creating a new one in ConfigDir..[/red]")
+            print("[red]No config. file found, creating a new one in the ``Config`` directory...[/red]")
             if not os.path.exists('Config'):
                 os.makedirs('Config')
             config_local = ConfigFile();
             config_local.read()
-            wallinpt = input("Please enter your SiriCoin wallet address: ")
-            sleep(1)
+            wallinpt = Get_address()
             prntcpthr = (f"[blue]{multiprocessing.cpu_count()}[/blue]")
-            print(f"[yellow]Number of threads present in your CPU: {prntcpthr} If you use more than that it could harm your CPU[/yellow]")
+            print(f"[yellow]Number of threads present in your CPU: {prntcpthr}[/yellow]")
             thrinpt = input("Please enter the number of threads you want to use: ")
             if (wallinpt != "" ):
                 config_local.userinfo["walletaddr"] = wallinpt
             if (thrinpt != ""):
                 config_local.userinfo["threads"] = thrinpt    
             config_local.write()
-            print("[green]Config Saved Successfully..[/green]")
+            print("[green]Config saved successfully..[/green]")
             sleep(2)
-            print("[red]Please Restart/Rerun the miner to continue..[/red]")
+            print("[red]Please restart the miner to continue..[/red]")
             exit()
