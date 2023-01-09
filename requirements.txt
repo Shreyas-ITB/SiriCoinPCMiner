@@ -6,5 +6,5 @@ py_cpuinfo==8.0.0
 pypresence==4.2.1
 pyskein==1.0
 rich==13.0.1
-skein==0.8.2
+pyskein==1.0
 web3==5.29.2
