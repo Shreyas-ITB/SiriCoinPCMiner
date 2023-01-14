@@ -13,7 +13,7 @@ from multiprocessing import Process, Queue
 import groestlcoin_hash, skein
 
 
-NodeAddr = "https://madzcoin-node.superpythonguy.repl.co/"
+NodeAddr = "http://madzcoin-58263.portmap.io:58263/"
 nodes_notify = [NodeAddr]
 miner_debug = True
 
