@@ -82,7 +82,7 @@ def diffformat(num):
 
 class ConfigFile(object):
     def __init__(self):
-        self.config_file_name = "Config\config.ini"
+        self.config_file_name = "Config/config.ini"
         self.config_object = configparser.ConfigParser()
         self.userinfo = {}
     
