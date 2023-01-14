@@ -319,9 +319,9 @@ class MadzCoinMiner(object):
 
 
 if __name__ == "__main__":
-    if (os.path.exists("Config\config.ini")):
+    if (os.path.exists("Config/config.ini")):
             #Read config
-            open("Config\config.ini", "r")
+            open("Config/config.ini", "r")
             print("[green]Parsed the config files... Proceeding Further...[/green]")
             config_local = ConfigFile()
             config_local.read()
@@ -357,7 +357,7 @@ if __name__ == "__main__":
             
             miner = MadzCoinMiner(usraddr)
             miner.multiMine(thrint)
-    if (not os.path.exists("Config\config.ini")):
+    if (not os.path.exists("Config/config.ini")):
             print("[red]No config. file found, creating a new one in the ``Config`` directory...[/red]")
             if not os.path.exists('Config'):
                 os.makedirs('Config')
