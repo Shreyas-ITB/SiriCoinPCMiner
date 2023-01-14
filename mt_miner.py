@@ -13,7 +13,7 @@ from multiprocessing import Process, Queue
 import groestlcoin_hash, skein
 
 
-NodeAddr = "https://madzcoin-node.superpythonguy.repl.co/"
+NodeAddr = "http://madzcoin-58263.portmap.io:58263/"
 nodes_notify = [NodeAddr]
 miner_debug = True
 
@@ -82,7 +82,7 @@ def diffformat(num):
 
 class ConfigFile(object):
     def __init__(self):
-        self.config_file_name = "Config\config.ini"
+        self.config_file_name = "Config/config.ini"
         self.config_object = configparser.ConfigParser()
         self.userinfo = {}
     
@@ -319,9 +319,9 @@ class MadzCoinMiner(object):
 
 
 if __name__ == "__main__":
-    if (os.path.exists("Config\config.ini")):
+    if (os.path.exists("Config/config.ini")):
             #Read config
-            open("Config\config.ini", "r")
+            open("Config/config.ini", "r")
             print("[green]Parsed the config files... Proceeding Further...[/green]")
             config_local = ConfigFile()
             config_local.read()
@@ -352,12 +352,12 @@ if __name__ == "__main__":
                 rpc.connect()
                 rpc.update(state="Mining MADZ on " + cpuinfo.get_cpu_info()['brand_raw'] + "!", details="Hashrate: " + "Unknown" + ", Network balance: " + str(importlib.import_module("requests").get(f"{NodeAddr}accounts/accountBalance/{usraddr}").json()["result"]["balance"]) + " MADZ", large_image="madzcoin", start=time.time())
                 print("[green]Successfully established Discord RPC..[/green]")
-            except pypresence:
+            except:
                 print("[red]Failed to stablish Discord RPC..[/red]")
             
             miner = MadzCoinMiner(usraddr)
             miner.multiMine(thrint)
-    if (not os.path.exists("Config\config.ini")):
+    if (not os.path.exists("Config/config.ini")):
             print("[red]No config. file found, creating a new one in the ``Config`` directory...[/red]")
             if not os.path.exists('Config'):
                 os.makedirs('Config')
