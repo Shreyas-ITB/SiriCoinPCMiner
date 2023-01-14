@@ -352,7 +352,7 @@ if __name__ == "__main__":
                 rpc.connect()
                 rpc.update(state="Mining MADZ on " + cpuinfo.get_cpu_info()['brand_raw'] + "!", details="Hashrate: " + "Unknown" + ", Network balance: " + str(importlib.import_module("requests").get(f"{NodeAddr}accounts/accountBalance/{usraddr}").json()["result"]["balance"]) + " MADZ", large_image="madzcoin", start=time.time())
                 print("[green]Successfully established Discord RPC..[/green]")
-            except pypresence:
+            except:
                 print("[red]Failed to stablish Discord RPC..[/red]")
             
             miner = MadzCoinMiner(usraddr)
