@@ -390,8 +390,8 @@ if __name__ == "__main__":
 
             miner_config.wallet_addr = config.cfg["walletaddr"]
             miner_config.threads = int(config.cfg["threads"])
-            miner_config.debug = config.cfg["threads"]
-            miner_config.discord_rpc = config.cfg["debug"].lower() == 'true'
+            miner_config.debug = config.cfg["debug"].lower() == 'true'
+            miner_config.discord_rpc = config.cfg["discord_rpc"].lower() == 'true'
             miner_config.print_method = int(config.cfg["print_method"])
 
             print("")
