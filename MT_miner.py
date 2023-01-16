@@ -16,10 +16,10 @@ import groestlcoin_hash, skein
 
 #Miner config
 miner_config = mock.Mock()
-miner_config.nodes = ["http://78.58.45.205:5000", "http://madzcoin-58263.portmap.io:58263"]
+miner_config.nodes = ["http://78.58.45.205:5000", "http://madzcoin-58263.portmap.io:58263", "http://node.shming.us:5005"]
 miner_config.coin = {"name": "MadzCoin", "ticker": "MADZ"}
 miner_config.discord_id = 1061719628839137350 #Do not change to your discord user ID
-miner_config.version = 0.1
+miner_config.version = 0.1.1
 miner_config.explorer_addr_URL = "http://madzcoin-explorer.aj.do/Explorer-testnet/address.html?address="
 
 splash_screen = """                                                                                    
@@ -402,7 +402,7 @@ if __name__ == "__main__":
             rgbPrint(f"CPU: {cpuinfo.get_cpu_info()['brand_raw'].replace(' with Radeon Graphics', '')}", "violet") # .replace(' with Radeon Graphics', ''), some AMD CPU's have this, removed to avoid confusion
             rgbPrint(f"CPU Family: {platform.processor()}", "violet")
             rgbPrint(f"CPU Threads: {multiprocessing.cpu_count()}", "violet")
-            rgbPrint(f"RAM: {round(psutil.virtual_memory().total / 1000000000, 2)} GB", "violet")
+            rgbPrint(f"RAM: {round(psutil.virtual_memory().total / 1073737400, 2)} GB", "violet")
             rgbPrint("-"*65, "blue")
             print("")
 
@@ -413,13 +413,13 @@ if __name__ == "__main__":
                     rpc.update(state=f"Mining {miner_config.coin['ticker']} on " + cpuinfo.get_cpu_info()['brand_raw'].replace(' with Radeon Graphics', '') + "!", details="Hashrate: " + "Unknown" + ", Network balance: " + str(requests.get(f"{pick_node(miner_config.nodes)}/accounts/accountBalance/{miner_config.wallet_addr}").json()["result"]["balance"]) + f" {miner_config.coin['ticker']}", large_image="madzcoin", start=time.time()) #.replace(' with Radeon Graphics', ''), some AMD CPU's have this, removed to avoid confusion , some AMD CPU's have this, removed to avoid confusion
                 except:
                     miner_config.discord_rpc = False
-                    rgbPrint("Failed to stablish Discord RPC", "red")
+                    rgbPrint("Failed to establish Discord RPC", "red")
             
             miner = MadzCoinMiner(miner_config)
             miner.multiMine(miner_config.threads)
 
     else:
-            rgbPrint("No config. file found, creating a new one in the ``madzcoin`` directory...", "red")
+            rgbPrint("No config file found, creating a new one in the ``madzcoin`` directory...", "red")
 
 
             if not os.path.exists('madzcoin'): os.makedirs('madzcoin')
@@ -446,7 +446,7 @@ if __name__ == "__main__":
 
             debug_inputed = False
             while not debug_inputed:
-                debug = input("\nDo you want to enable debug? (Recommended - N, you will loose features) (N/No or Y/Yes) ").lower()
+                debug = input("\nDo you want to enable debug? (Recommended - N, you will lose features) (N/No or Y/Yes) ").lower()
                 if debug == "y" or debug == "yes": config.userinfo["debug"] = "true"; debug_inputed = True; config.userinfo["print_method"] = "1"; print_method_inputed = True
                 elif debug == "n" or debug == "no": config.userinfo["debug"] = "false"; debug_inputed = True
                 else: rgbPrint("Invalid input!", "red")
