@@ -196,7 +196,7 @@ class MadzCoinMiner(object):
         self.messages = b"null"
 
         self.lastSentTx = ""
-        self.balance = requests.get(self.preferred_node + "")
+
         self.mined_blocks = 0
 
         self.refreshBlock()
@@ -219,7 +219,7 @@ class MadzCoinMiner(object):
         self.timestamp = int(time.time())
 
     def refreshAccountInfo(self):
-        temp_txs = requests.get(self.preferred_node + "/accounts/accountInfo/" + self.acct.address).json()["result"]
+        temp_txs = requests.get(self.preferred_node + "/accounts/accountInfo/" + self.rewardsRecipient).json()["result"]
         _txs = temp_txs.get("transactions")
         self.lastSentTx = _txs[len(_txs)-1]
         self.balance = temp_txs.get("balance")
