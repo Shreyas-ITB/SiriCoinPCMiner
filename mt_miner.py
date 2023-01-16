@@ -84,14 +84,14 @@ class ConfigFile(object):
     def __init__(self):
         self.config_file_name = "Config/config.ini"
         self.config_object = configparser.ConfigParser()
-        self.userinfo = {}
+        self.cfg = {}
     
     def read(self):
         self.config_object["USERINFO"] = { "walletaddr": []}
         if (os.path.exists(self.config_file_name) is False):
             self.write()
         self.config_object.read(self.config_file_name)            
-        self.userinfo = self.config_object["USERINFO"]
+        self.cfg = self.config_object["USERINFO"]
                 
     def write(self):
         with open(self.config_file_name, "w") as conf:

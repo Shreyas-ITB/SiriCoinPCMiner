@@ -1,10 +1,11 @@
-colorama
 eth_account
 groestlcoin_hash
+mock
 psutil
 py_cpuinfo
 pypresence
 pyskein
+requests
 rich
-pyskein
+skein
 web3
