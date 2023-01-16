@@ -139,7 +139,7 @@ class ConfigFile(object):
     def __init__(self):
         self.config_file_name = "madzcoin/MT-Miner_config.ini"
         self.config_object = configparser.ConfigParser()
-        self.userinfo = {}
+        self.cfg = {}
         
     
     def read(self):
@@ -147,7 +147,7 @@ class ConfigFile(object):
         if not os.path.exists(self.config_file_name):
             self.write()
         self.config_object.read(self.config_file_name)            
-        self.userinfo = self.config_object["cfg"]
+        self.cfg = self.config_object["cfg"]
                 
     def write(self):
         with open(self.config_file_name, "w") as conf:
