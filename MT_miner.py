@@ -425,14 +425,14 @@ if __name__ == "__main__":
             if not os.path.exists('madzcoin'): os.makedirs('madzcoin')
             config = ConfigFile()
             config.read()
-            config.userinfo["walletaddr"] = Get_address()
+            config.cfg["walletaddr"] = Get_address()
 
             thread_inputed = False
             rgbPrint(f"Number of threads present in your CPU: {f'[blue]{multiprocessing.cpu_count()}[/blue]'}", "yellow")
             while not thread_inputed:
                 thrinpt = input("\nPlease enter the number of threads you want to use: ")
                 try:
-                    config.userinfo["threads"] = str(int(thrinpt))
+                    config.cfg["threads"] = str(int(thrinpt))
                     thread_inputed = True
                 except:
                     rgbPrint("Invalid input!", "red")
@@ -440,22 +440,22 @@ if __name__ == "__main__":
             discord_rpc_inputed = False
             while not discord_rpc_inputed:
                 discord_rpc = input("\nDo you want to use Discord RPC? (Y/Yes or N/No) ").lower()
-                if discord_rpc == "y" or discord_rpc == "yes": config.userinfo["discord_rpc"] = "true"; discord_rpc_inputed = True
-                elif discord_rpc == "n" or discord_rpc == "no": config.userinfo["discord_rpc"] = "false"; discord_rpc_inputed = True
+                if discord_rpc == "y" or discord_rpc == "yes": config.cfg["discord_rpc"] = "true"; discord_rpc_inputed = True
+                elif discord_rpc == "n" or discord_rpc == "no": config.cfg["discord_rpc"] = "false"; discord_rpc_inputed = True
                 else: rgbPrint("Invalid input!", "red")
 
             debug_inputed = False
             while not debug_inputed:
                 debug = input("\nDo you want to enable debug? (Recommended - N, you will lose features) (N/No or Y/Yes) ").lower()
-                if debug == "y" or debug == "yes": config.userinfo["debug"] = "true"; debug_inputed = True; config.userinfo["print_method"] = "1"; print_method_inputed = True
-                elif debug == "n" or debug == "no": config.userinfo["debug"] = "false"; debug_inputed = True
+                if debug == "y" or debug == "yes": config.cfg["debug"] = "true"; debug_inputed = True; config.cfg["print_method"] = "1"; print_method_inputed = True
+                elif debug == "n" or debug == "no": config.cfg["debug"] = "false"; debug_inputed = True
                 else: rgbPrint("Invalid input!", "red")
 
 
             print_method_inputed = False
             while not print_method_inputed:
                 print_method = input("\nWhich print method do you want to use? (0/1)\n0 - Recomended, updates a single table\n1 - re-prints the same table\n\n").lower()
-                if print_method == "0" or print_method == "1": config.userinfo["print_method"] = str(print_method); print_method_inputed = True
+                if print_method == "0" or print_method == "1": config.cfg["print_method"] = str(print_method); print_method_inputed = True
                 else: rgbPrint("Invalid input!", "red")
 
             config.write()          
