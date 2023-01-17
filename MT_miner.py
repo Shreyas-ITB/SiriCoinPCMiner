@@ -19,7 +19,7 @@ miner_config = mock.Mock()
 miner_config.nodes = ["http://78.58.45.205:5000", "http://madzcoin-58263.portmap.io:58263", "http://node.shming.us:5005"]
 miner_config.coin = {"name": "MadzCoin", "ticker": "MADZ"}
 miner_config.discord_id = 1061719628839137350 #Do not change to your discord user ID
-miner_config.version = 0.1.1
+miner_config.version = 0.1
 miner_config.explorer_addr_URL = "http://madzcoin-explorer.aj.do/Explorer-testnet/address.html?address="
 
 splash_screen = """                                                                                    
