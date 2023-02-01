@@ -16,7 +16,7 @@ import groestlcoin_hash, skein
 
 #Miner config
 miner_config = mock.Mock()
-miner_config.nodes = ["http://78.58.45.205:5000", "http://madzcoin-58263.portmap.io:58263", "http://node.shming.us:5005"]
+miner_config.nodes = ["https://78.58.45.205:5000", "http://madzcoin-58263.portmap.io:58263", "http://node.shming.us:5005"]
 miner_config.coin = {"name": "MadzCoin", "ticker": "MADZ"}
 miner_config.discord_id = 1061719628839137350 #Do not change to your discord user ID
 miner_config.version = 0.1
